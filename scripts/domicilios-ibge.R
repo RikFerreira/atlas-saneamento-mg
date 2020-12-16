@@ -52,7 +52,8 @@ design2010 <- svydesign(
 # Output
 saneamento2010 <- svytable(~ UF + SITUACAO + ADEQUACAO + AGUA + ESGOTO + LIXO, design2010) %>%
     as_tibble() %>%
-    group_by(UF, SITUACAO, ADEQUACAO, AGUA, ESGOTO, LIXO) %>%
+    mutate(ANO = "2010") %>%
+    group_by(ANO, UF, SITUACAO, ADEQUACAO, AGUA, ESGOTO, LIXO) %>%
     summarise(n = sum(n, na.rm = TRUE) %>% round()) %>%
     ungroup()
 
@@ -99,11 +100,12 @@ saneamento2019 <- svytable(~ UF + SITUACAO + ADEQUACAO + S01010 + S01012A + S010
         LIXO = S01013
     ) %>%
     mutate(
+        ANO = "2019",
         AGUA = ifelse(AGUA == "1", "Adequado", "Inadequado"),
         ESGOTO = ifelse(ESGOTO %in% c("1", "2"), "Adequado", "Inadequado"),
         LIXO = ifelse(LIXO == "1", "Adequado", "Inadequado")
     ) %>%
-    group_by(UF, SITUACAO, ADEQUACAO, AGUA, ESGOTO, LIXO) %>%
+    group_by(ANO, UF, SITUACAO, ADEQUACAO, AGUA, ESGOTO, LIXO) %>%
     summarise(n = sum(n, na.rm = TRUE) %>% round()) %>%
     ungroup()
 
