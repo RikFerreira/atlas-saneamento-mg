@@ -35,7 +35,7 @@ micro2010 <- micro2010_raw %>%
         ) %>% as_factor() %>% fct_relevel(c("Adequado", "Semi-adequado", "Inadequado"))
     ) %>%
     select(
-        UF = V0001, SITUACAO, ADEQUACAO, AGUA, ESGOTO, LIXO, PESO = V0010
+        UF = V0001, SITUACAO, ADEQUACAO, AGUA, ESGOTO, LIXO, PESO = V0010, V4001
     ) %>%
     group_by(UF) %>%
     mutate(fpc = n()) %>%
@@ -47,7 +47,9 @@ design2010 <- svydesign(
     fpc = ~fpc,
     weights = ~PESO,
     data = micro2010
-)
+) %>%
+    subset(V4001 == "01") %>%
+    as.svrepdesign(type = "bootstrap", replicates = 1)
 
 # Output
 saneamento2010 <- svytable(~ UF + SITUACAO + ADEQUACAO + AGUA + ESGOTO + LIXO, design2010) %>%
@@ -111,4 +113,5 @@ saneamento2019 <- svytable(~ UF + SITUACAO + ADEQUACAO + S01010 + S01012A + S010
 
 # Saving
 bind_rows(saneamento2010, saneamento2019) %>%
+    rename(DOMICILIOS = n) %>%
     write_csv("../output/saneamento_domiciliar.csv")
