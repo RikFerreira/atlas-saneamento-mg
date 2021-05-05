@@ -1,7 +1,7 @@
 library(tidyverse)
 library(readxl)
 
-agua <- read_xlsx("../data/ignored/base_abastecimento.xlsx", sheet = 2) %>%
+munic_agua <- read_xlsx("data/ignored/base_abastecimento.xlsx", sheet = 2) %>%
     select(
         COD_UF = 4,
         COD_MUN = 1,
@@ -18,7 +18,7 @@ agua <- read_xlsx("../data/ignored/base_abastecimento.xlsx", sheet = 2) %>%
     ) %>%
     type_convert()
 
-esgoto <- read_xlsx("../data/ignored/base_abastecimento.xlsx", sheet = 3) %>%
+munic_esgoto <- read_xlsx("data/ignored/base_abastecimento.xlsx", sheet = 3) %>%
     select(
         COD_UF = 4,
         COD_MUN = 1,
@@ -34,7 +34,7 @@ esgoto <- read_xlsx("../data/ignored/base_abastecimento.xlsx", sheet = 3) %>%
         }
     )
 
-gestao <- read_xlsx("../data/ignored/base_gestao.xlsx", sheet = 2) %>%
+munic_gestao <- read_xlsx("data/ignored/base_gestao.xlsx", sheet = 2) %>%
     mutate_if(
         is.character,
         ~{

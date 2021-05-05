@@ -1,23 +1,27 @@
 library(tidyverse)
+library(RSQLite)
 library(survey)
 library(PNADcIBGE)
-library(RPostgreSQL)
-library(survey)
 
-#2010 data
+# 2010 data
+
+# library(RPostgreSQL)
 # Connection to PostgreSQL database
-conn <- dbConnect(
-    dbDriver("PostgreSQL"),
-    user = "postgres",
-    password = readline(prompt = "Senha: "),
-    host = "localhost",
-    port = 5432,
-    dbname = "censo_pessoas_2010"
-)
+# conn <- dbConnect(
+#     dbDriver("PostgreSQL"),
+#     user = "postgres",
+#     password = readline(prompt = "Senha: "),
+#     host = "localhost",
+#     port = 5432,
+#     dbname = "censo_pessoas_2010"
+# )
 
 # Input
-micro2010_raw <- dbGetQuery(conn, readLines("../scripts/saneamento_censo_2010.sql")) %>%
+micro2010_conn <- dbConnect(RSQLite::SQLite(), "/mnt/HDD/STORAGE/sqlite-databases/censo2010")
+micro2010_raw <- dbGetQuery(micro2010_conn, "SELECT \"V0001\", \"V4001\", \"V0010\", \"V1006\", \"V0207\", \"V0208\", \"V0210\" FROM domicilios;") %>%
     as_tibble()
+# micro2010_raw <- dbGetQuery(micro2010_conn, readLines("../scripts/saneamento_censo_2010.sql")) %>%
+#     as_tibble()
 
 # Reclassification
 micro2010 <- micro2010_raw %>%
@@ -61,6 +65,7 @@ saneamento2010 <- svytable(~ UF + SITUACAO + ADEQUACAO + AGUA + ESGOTO + LIXO, d
 
 # 2019 data
 # Input
+options(timeout = Inf)
 micro2019_raw <- get_pnadc(
     year = 2019,
     interview = 1,
@@ -115,3 +120,4 @@ saneamento2019 <- svytable(~ UF + SITUACAO + ADEQUACAO + S01010 + S01012A + S010
 bind_rows(saneamento2010, saneamento2019) %>%
     rename(DOMICILIOS = n) %>%
     write_csv("../output/saneamento_domiciliar.csv")
+

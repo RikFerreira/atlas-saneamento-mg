@@ -3,7 +3,9 @@ library(rsiconfi)
 library(sf)
 library(geobr)
 
-municipalities <- read_municipality(31) %>%
+municipalities_raw <- read_municipality(31)
+
+municipalities <- municipalities_raw %>%
     st_drop_geometry() %>%
     pull(code_muni) %>%
     append("31")
@@ -17,6 +19,4 @@ reports <- get_dca(
 ) %>%
     as_tibble()
 
-reports %>%
-    mutate(na = is.na(valor)) %>%
-    count(exercicio, na)
+write_csv(reports, "output/siconfi_reports.csv", na = "")
