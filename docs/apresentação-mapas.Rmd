@@ -1,0 +1,49 @@
+---
+title: Apresentação de mapas
+author:
+    - Gustavo Henrique Cepolini Ferreira^[gustavo.cepolini@unimontes.br]
+    - Rik Ferreira Alves^[rikferreiraalves@gmail.com]
+output:
+    bookdown::pdf_document2:
+        toc: false
+        number_sections: false
+geometry: "top=3cm,right=2cm,bottom=2cm,left=3cm"
+mainfont: Times New Roman
+fontsize: 12pt
+indent: true
+header-includes:
+    \usepackage[brazil]{babel}
+    \usepackage[onehalfspacing]{setspace}
+    \usepackage{indentfirst}
+    \usepackage{lipsum}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = FALSE, eval = TRUE)
+```
+
+# Mapas
+
+Ao observar a frequência relativa de domicílios com acesso a serviços de saneamento básico por município de Minas Gerais evidencia-se uma desigualdade que se desdobra em duas dimensões: uma regioinal e uma relativa aos serviços. Municípios localizados de sul e a oeste do estado apresentam maior equilíbrio no acesso a serviços adequados de abastecimento de água e coleta de esgoto, bem como maior acesso a estes serviços em valores proporcionais. Regiões intermediárias como as de Uberlândia e Uberaba apresentam poucos municípios em que há maior acesso domiciliar à coleta adequada de esgoto do que abastecimento adequado de água. Este cenário não é acompanhado pela realidade dos municípios ao Norte do Estado, onde se observa mais municípios que conseguem suprir apropriadamente demanda de água em vista da demanda por esgoto, em maior grau na região de Montes Claros mas também na porção norte da região de Patos de Minas e em determinadas localidades da região de Teófilo Otoni.
+
+```{r aguaesgoto, out.width="100%", fig.cap="Água e esgoto por domicílio em Minas Gerais"}
+knitr::include_graphics("../plots/agua-esgoto.png")
+```
+
+No que tange ao acesso a serviços de coleta de lixo, o mesmo padrão observado se acirra.
+
+```{r lixo, out.width="100%", fig.cap="Adequação da coleta de lixo domiciliar por município em Minas Gerais"}
+knitr::include_graphics("../plots/lixo.png")
+```
+
+```{r adequacao, out.width="100%", fig.cap="Adequação domiciliar por município em Minas Gerais"}
+knitr::include_graphics("../plots/adequacao.png")
+```
+
+```{r despesas, out.width="100%", fig.cap="Despesas com saneamento por população por município em Minas Gerais"}
+knitr::include_graphics("../plots/despesas.png")
+```
+
+```{r saneamentodespesas, out.width="100%", fig.cap="Componente do saneamento domiciliar por despesas por município em Minas Gerais"}
+knitr::include_graphics("../plots/saneamento-despesas.png")
+```

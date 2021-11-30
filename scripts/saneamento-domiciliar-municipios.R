@@ -180,3 +180,11 @@ mg_shape %>%
     st_drop_geometry() %>%
     select(code_muni, AGUA_ADEQ, ESGOTO_ADEQ, LIXO_ADEQ) %>%
     write_csv("output/saneamento-componentes.csv")
+
+mg_shape %>%
+    st_drop_geometry() %>%
+    select(code_muni, AGUA_ADEQ_PER, ESGOTO_ADEQ_PER, LIXO_ADEQ_PER) %>%
+    pivot_longer(cols = c(AGUA_ADEQ_PER, ESGOTO_ADEQ_PER, LIXO_ADEQ_PER)) %>%
+    mutate(class = ifelse(value < .333, 33, ifelse(value < .667, 66, 100))) %>%
+    count(class, name) %>%
+    arrange(class)

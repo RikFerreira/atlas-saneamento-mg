@@ -10,19 +10,19 @@ library(abjutils)
 
 if("geobr" %in% .packages()) {
     br <- read_state()
-    
+
     mg_mun <- read_municipality(31) %>%
         mutate(code_muni = as.character(code_muni))
-    
+
     mg_rgint <- read_intermediate_region(31) %>%
         mutate(code_intermediate = as.character(code_intermediate))
 } else {
     br <- st_read("/mnt/HDD/STORAGE/georesources/vector/MUNICIPIOS.gpkg", layer = "BR_UF_2019") %>%
         rename(code_state = cd_uf)
-    
+
     mg_rgint <- st_read("/mnt/HDD/STORAGE/georesources/vector/MUNICIPIOS.gpkg", layer = "BR_RG_Intermediarias_2019") %>%
         rename(code_rgint = cd_rgint)
-    
+
     mg_mun <- st_read("/mnt/HDD/STORAGE/georesources/vector/MUNICIPIOS.gpkg", layer = "BR_Municipios_2019") %>%
         filter(sigla_uf == "MG") %>%
         rename(code_muni = cd_mun)
@@ -54,6 +54,34 @@ final <- mg_mun %>%
     left_join(mg_agua, "code_muni") %>%
     # filter(Situacao_setor == "Urbano") %>%
     mutate(Freq = cut2(ADEQ_PER, g = 5))
+
+# main_map <- final %>%
+#     ggplot() +
+#     geom_sf(aes(fill = Freq), size = .25) +
+#     geom_sf(data = mg_rgint, aes(color = "black"), fill = NA, size = 1) +
+#     scale_fill_brewer(palette = "Reds", na.value = "lightgray") +
+#     scale_color_identity(guide = "legend", name = NULL, breaks = "black", labels = "Regiões intermediárias") +
+#     fixed_plot_aspect(40/38) +
+#     annotation_north_arrow(
+#         width = unit(.6, "cm"),
+#         height = unit(1.2, "cm"),
+#         pad_x = unit(11.4, "cm"),
+#         pad_y = unit(1.5, "cm")
+#     ) +
+#     annotation_scale(
+#         pad_x = unit(10, "cm"),
+#         pad_y = unit(1, "cm")
+#     ) +
+#     theme_void() +
+#     theme(
+#         plot.background = element_rect(fill = "#f5f6f1", size = 0),
+#         panel.background = element_rect(fill = "#f5f6f1", size = 0),
+#         plot.title = element_text(family = "Roboto Condensed", face = "bold", size = 16),
+#         axis.ticks = element_line(size = .5),
+#         axis.ticks.length = unit(.15, "cm"),
+#         axis.text = element_text(),
+#         axis.text.y = element_text(angle = 90)
+#     )
 
 main_map <- final %>%
     ggplot() +
@@ -109,8 +137,7 @@ plot <- plot_spacer() + plot_spacer() + plot_spacer() + plot_spacer() +
     main_map + guide_area() + context_map +
     plot_layout(guides = "collect", design = single_choroplet_landscape) +
     plot_annotation(
-        title = "Total das despesas com saneamento por população (R$)",
-        caption = " Fonte: SICONFI, 2019\n Org.: NEPRA, 2021\n SRC: SIRGAS 2000\n"
+        caption = " Fonte: IBGE, 2010\n Org.: ALVES, R. F., 2021\n SRC: SIRGAS 2000\n"
     ) &
     theme(
         plot.background = element_rect(fill = "#f5f6f1", size = 0),
@@ -118,8 +145,10 @@ plot <- plot_spacer() + plot_spacer() + plot_spacer() + plot_spacer() +
         plot.title = element_text(family = "Roboto Condensed", face = "bold", size = 16),
         text = element_text(family = "Fira Sans", size = 10)
     )
-    
-ggsave("plots/agua_adeq.png", plot, width = 297, height = 210, units = "mm", dpi = 300)
+
+plot
+
+ggsave("plots/agua-adeq.png", plot, width = 297, height = 210, units = "mm", dpi = 300)
 
 rgint <- final %>%
     left_join(
@@ -145,3 +174,24 @@ rgint %>%
 rgint %>%
     ggplot() +
     geom_boxplot(aes(x = nome_rgint, y = ADEQ_PER, group = nome_rgint))
+
+# RANKING --------
+
+final %>%
+    st_drop_geometry() %>%
+    select(code_muni, ADEQ, ADEQ_PER) %>%
+    mutate(code_muni = as.character(code_muni)) %>%
+    left_join(
+        select(readxl::read_xlsx("data/regioes-geograficas.xlsx"), CD_GEOCODI, cod_rgint, nome_rgint),
+        by = c("code_muni" = "CD_GEOCODI")
+    ) %>%
+    group_by(cod_rgint, nome_rgint) %>%
+    summarise(
+        min = min(ADEQ_PER),
+        mean = median(ADEQ_PER),
+        max = max(ADEQ_PER)
+    ) %>%
+    arrange(desc(mean)) %>%
+    ungroup() %>%
+    mutate(rank = 1:n(), .before = cod_rgint)
+    write_csv("output/ranking-agua.csv")

@@ -1,0 +1,28 @@
+---
+title: "Untitled"
+author: "Rik Ferreira Alves"
+date: "22/09/2021"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval = TRUE, warning = FALSE, message = FALSE, echo = FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(flextable)
+```
+
+```{r}
+read_csv(
+        "../output/ranking-adequacao.csv",
+        #col_names = c("Posição", "cod_rgint", "Região Intermediária", "Mínimo", "Mediana", "Máximo"),
+        col_types = "cccnnn"
+    ) %>%
+    select("Posição" = 1, "Região Intermediária" = 3, "Mínimo" = 4, "Mediana" = 5, "Máximo" = 6) %>%
+    mutate_if(is.numeric, round, 2) %>%
+    flextable() %>%
+    autofit(add_h = 0) %>%
+    align(align = "center")
+```

@@ -1,3 +1,4 @@
+
 library(tidyverse)
 library(sf)
 library(geobr)
@@ -113,3 +114,23 @@ mg_shape %>%
     st_drop_geometry() %>%
     select(code_muni, MORADIA_ADEQ, MORADIA_ADEQ_PER) %>%
     write_csv("output/moradia-adequada.csv", na = "")
+
+read_csv("output/moradia-adequada.csv") %>%
+    mutate(code_muni = as.character(code_muni)) %>%
+    left_join(
+        select(readxl::read_xlsx("data/regioes-geograficas.xlsx"), CD_GEOCODI, cod_rgint, nome_rgint),
+        by = c("code_muni" = "CD_GEOCODI")
+    ) %>%
+    group_by(cod_rgint, nome_rgint) %>%
+    summarise(
+        min = min(MORADIA_ADEQ_PER),
+        mean = median(MORADIA_ADEQ_PER),
+        max = max(MORADIA_ADEQ_PER)
+    ) %>%
+    arrange(desc(mean)) %>%
+    ungroup() %>%
+    mutate(rank = 1:n(), .before = cod_rgint) %>%
+    write_csv("output/ranking-adequacao.csv")
+
+read_csv("output/moradia-adequada.csv") %>%
+    arrange(MORADIA_ADEQ_PER)
